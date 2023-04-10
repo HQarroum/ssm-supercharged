@@ -96,7 +96,7 @@ ssh user@aws-awesome-instance
 
 ### sshuttle
 
-> sshuttle is a Transparent proxy server that works as a poor man's VPN. It works by establishing an SSH connection to a remote host and routes the traffic from a local machine targeting a specific IP CIDR to a remote network such as, in our case, an AWS VPC.
+> [sshuttle](https://github.com/sshuttle/sshuttle) is a Transparent proxy server that works as a poor man's VPN. It works by establishing an SSH connection to a remote host and routes the traffic from a local machine targeting a specific IP CIDR to a remote network such as, in our case, an AWS VPC.
 
 To establish a sshuttle connection, you can simply reference your instance like in the previous example, as sshuttle is going to make use of your OpenSSH configuration automatically.
 
