@@ -1,0 +1,2 @@
+Host i-* mi-* aws-* ec2-*.compute.amazonaws.com ip-*.compute.internal
+  ProxyCommand ~/.ssh/initiate-ssm-connection.sh %h %r %p
