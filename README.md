@@ -2,7 +2,7 @@
   <img width="500" src="assets/icon.png">
   <h2 align="center">⚡ SSM Supercharged</h2>
   <p align="center">AWS SSM integration with OpenSSH + EC2 Instance Connect + sshuttle<p>
-  <p align="center"><em>This repository is linked to the research conducted in this <a href="https://medium.com/p/83e01d5f11f4">Medium article</a>.</em></p>
+  <p align="center"><em>This repository is linked to the research conducted in this <a href="https://halim.qarroum.com/ssm-sessions-manager-on-steroids-83e01d5f11f4">Medium article</a>.</em></p>
   <p align="center">
     <a href="https://deepsource.io/gh/HQarroum/ssm-supercharged/?ref=repository-badge}" target="_blank"><img alt="DeepSource" title="DeepSource" src="https://deepsource.io/gh/HQarroum/ssm-supercharged.svg/?label=active+issues&show_trend=true&token=u6fp0Ak9RQrsjdsi-Bda3azf"/></a>
     <a href="https://www.codefactor.io/repository/github/hqarroum/ssm-supercharged"><img src="https://www.codefactor.io/repository/github/hqarroum/ssm-supercharged/badge" alt="CodeFactor" /></a>
