@@ -2,7 +2,7 @@
 
 set -e
 
-if [ ! "$1" ]
+if [ "$#" -lt 2 ]
 then
   exit 1
 fi
@@ -41,21 +41,26 @@ if [[ $HOSTNAME = i-* || $HOSTNAME = mi-* ]]; then
   INSTANCE_ID=$HOSTNAME
 fi
 
+# If no instance identifier could be resolved,
+# we fail.
 if [[ ! $INSTANCE_ID ]]; then
   exit 1
 fi
 
 # Generate a password to encrypt the temporary SSH certificate.
+# This password will be stored in memory for the lifetime of this
+# script and will not be written on disk.
 PASSPHRASE=$(openssl rand -base64 16)
 
-# Create an `askpass` binary for `ssh-add`` that simply prints the password. 
+# Create an `askpass` binary for `ssh-add`` that simply returns
+# the password from an environment variable. 
 cat > /tmp/ssh-askpass <<EOF
 #!/bin/sh
 echo \$PASSPHRASE
 EOF
 chmod +x /tmp/ssh-askpass
 
-# Generate a temporary SSH key-pair.
+# Generate a temporary SSH key-pair for the connection.
 rm -f /tmp/key /tmp/key.pub
 ssh-keygen -t rsa -f /tmp/key -q -N "$PASSPHRASE"
 chmod 600 /tmp/key /tmp/key.pub
