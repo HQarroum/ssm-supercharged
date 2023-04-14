@@ -26,10 +26,6 @@ for CMD in $COMMANDS; do
   fi
 done
 
-#- add ssm-supercharged to awesome-ssm and others
-#- support ecs connections
-#- run shellcheck
-
 # Retrieving arguments from the command-line.
 while getopts ":h:u:p:e:" o; do
   case "${o}" in
