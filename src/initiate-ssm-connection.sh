@@ -98,34 +98,34 @@ if [[ "$EC2_INSTANCE_CONNECT" != "no" ]]; then
   KEY_SUFFIX=$(openssl rand -hex 8)
   KEY_NAME="$KEY_PREFIX"_"$KEY_SUFFIX"
 
-  cat > "/$TMP_DIR/ssh-askpass" <<EOF
+  cat > "$TMP_DIR/ssh-askpass" <<EOF
 #!/bin/sh
 echo \$PASSPHRASE
 EOF
-  chmod +x "/$TMP_DIR/ssh-askpass"
+  chmod +x "$TMP_DIR/ssh-askpass"
 
   # Remove any existing temporary key from SSH agent.
   # In addition to cleanup purposes, this will prevent running
   # in a situation where we hit the `MaxAuthTries` on the sshd
   # of the remote EC2 instance due to SSH trying different keys. 
-  for key in /$TMP_DIR/$KEY_PREFIX*; do
+  for key in "$TMP_DIR/$KEY_PREFIX"*; do
     ssh-add -d "$key" 2> /dev/null || :
     rm -f "$key" 2> /dev/null || :
   done
 
   # Generating a new temporary SSH key-pair.
-  ssh-keygen -t rsa -f "/$TMP_DIR/$KEY_NAME" -q -N "$PASSPHRASE"
-  chmod 600 "/$TMP_DIR/$KEY_NAME"*
+  ssh-keygen -t rsa -f "$TMP_DIR/$KEY_NAME" -q -N "$PASSPHRASE"
+  chmod 600 "$TMP_DIR/$KEY_NAME"*
 
   PASSPHRASE="$PASSPHRASE" \
   DISPLAY=1 \
-  SSH_ASKPASS="/$TMP_DIR/ssh-askpass" \
-  ssh-add "/$TMP_DIR/$KEY_NAME" < /dev/null
+  SSH_ASKPASS="$TMP_DIR/ssh-askpass" \
+  ssh-add "$TMP_DIR/$KEY_NAME" < /dev/null
 
   aws ec2-instance-connect send-ssh-public-key \
     --instance-id "$INSTANCE_ID" \
     --instance-os-user "$SSH_USER" \
-    --ssh-public-key "file:///$TMP_DIR/$KEY_NAME.pub"
+    --ssh-public-key "file://$TMP_DIR/$KEY_NAME.pub"
 fi
 
 # Creating the SSM tunnel once we've resolved the

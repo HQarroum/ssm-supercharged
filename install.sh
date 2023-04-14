@@ -65,6 +65,7 @@ bootstrap_ssh_directory() {
 
 copy_proxy_command() {
   curl --silent "$REPO_URL/src/initiate-ssm-connection.sh" > "$SSH_DIR/initiate-ssm-connection.sh"
+  chmod +x "$SSH_DIR/initiate-ssm-connection.sh"
 }
 
 patch_ssh_config() {
