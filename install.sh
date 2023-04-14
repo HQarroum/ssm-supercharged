@@ -1,9 +1,9 @@
 #!/bin/bash
 
 default_ssh_dir() {
-  if [ ! -z "${XDG_CONFIG_HOME-}" ]; then
+  if [ -n "${XDG_CONFIG_HOME-}" ]; then
     printf %s "${XDG_CONFIG_HOME}/.ssh"
-  elif [ ! -z "${HOME-}" ]; then
+  elif [ -n "${HOME-}" ]; then
     printf %s "${HOME}/.ssh"
   else
     fail "Could not detect home directory. Ensure \$HOME or \$XDG_CONFIG_HOME are set."
@@ -52,7 +52,6 @@ ssh_config_is_patched() {
   if [ ! -f "$SSH_CONFIG_FILE" ]; then
     printf %s "no"
   else
-    #echo "$1"
     grep -qxF "$1" "$SSH_CONFIG_FILE" && printf %s "yes" || printf %s "no"
   fi
 }
@@ -93,18 +92,21 @@ patch_ssh_config() {
 }
 
 verify_ssh_agent() {
+  local pids;
+
   pids=$(ps -ax)
   
-  if [ "$?" != "0" ]; then
+  if [ "$pids" ]; then
+    ps=$(echo "$pids" | grep -v grep | grep -c ssh-agent)
+
+    if [ "$ps" = "0" ]; then
+    print "[i] ssh-agent does not seem to be running, it is required for optimal SSM tunneling."
+    # shellcheck disable=SC2016
+    print '[i] You can start it using "eval `ssh-agent -s`".' 
+    fi
+  else
     warn "Could not verify whether ssh-agent is running."
     return 1
-  fi
-
-  ps=$(echo "$pids" | grep "ssh-agent" | grep -v grep | wc -l)
-
-  if [ "$ps" = "0" ]; then
-   print "[i] ssh-agent does not seem to be running, it is required for optimal SSM tunneling."
-   print '[i] You can start it using "eval `ssh-agent -s`".' 
   fi
 }
 
