@@ -74,7 +74,7 @@ patch_ssh_config() {
 
   ssh_config_file_content="$(curl --silent $REPO_URL/src/ssh_config)"
   ssh_config_patched=$(ssh_config_is_patched "$ssh_config_file_content")
-  if [ $ssh_config_patched = "no" ]; then
+  if [ "$ssh_config_patched" = "no" ]; then
     # If an OpenSSH configuration file does not exist, we create it.
     if [ ! -f "$SSH_CONFIG_FILE" ]; then
       info "$SSH_CONFIG_FILE does not exists, creating an empty file."
