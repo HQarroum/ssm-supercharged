@@ -26,12 +26,12 @@ Lead Maintainer: [Halim Qarroum](mailto:hqm.post@gmail.com)
 
 This repository features a simple [OpenSSH configuration file](./src/ssh_config) and a [Bash based proxy command](./src/initiate-ssm-connection.sh) used to integrate OpenSSH with [AWS SSM Sessions Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html) for a streamlined and secure experience. The aim of this project is to provide a way to achieve one or multiple of the following :
 
-- Keep your EC2 instances in a private subnet with no inbound security group rules.
-- Stop managing SSH key-pairs, and keep your instances keyless.
-- Systematically run SSH through an SSM tunnel when targeting EC2 instances.
-- Address EC2 instances using their instance identifiers, friendly names, public DNS names or private DNS names.
-- Generate just-in-time temporary SSH certificates for connecting to certificate-less instances using [EC2 Instance Connect](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Connect-using-EC2-Instance-Connect.html).
-- Integrate [sshuttle](https://github.com/sshuttle/sshuttle) with SSM to establish a lightweight and free VPN to a remote VPC.
+- 🔒 Keep your EC2 instances in a private subnet with no inbound security group rules.
+- 🔑 Stop managing SSH key-pairs, and keep your instances keyless.
+- 🚇 Systematically tunnel SSH connections through SSM when targeting EC2 instances.
+- 💻 Address EC2 instances using their instance identifiers, friendly names, public DNS names or private DNS names.
+- 📲 Push just-in-time temporary SSH certificates when connecting to keyless instances using [EC2 Instance Connect](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Connect-using-EC2-Instance-Connect.html).
+- 🌐 Integrate [sshuttle](https://github.com/sshuttle/sshuttle) with SSM to establish lightweight and free VPN-like connections to a remote VPC.
 
 ## 🎒 Pre-Requisites
 
@@ -105,7 +105,7 @@ This will cause sshuttle to tunnel all traffic targeting `172.31.0.0/16` through
 
 ### Disabling EC2 Instance Connect
 
-By default, the proxy command script provided by `ssm-supercharged` assumes no SSH key-pair are associated with an instance and instead generates ephemeral RSA key-pairs for each connection which are pushed to the instance using the EC2 Instance Connect service.
+By default, the proxy command script provided by `ssm-supercharged` assumes no SSH key-pair are associated with an instance and instead generates ephemeral RSA key-pairs for each connection which are pushed to the instance using the [EC2 Instance Connect](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Connect-using-EC2-Instance-Connect.html) service.
 
 EC2 Instance Connect is currently only available on Ubuntu and Amazon Linux AMIs. If you are using another operating system such as RedHat, you can explicitely provide `ssh` with a private key you own when connecting to the instance.
 
