@@ -10,7 +10,7 @@
 </p>
 <br>
 
-Current version: **1.0.0**
+Current version: **1.1.0**
 
 Lead Maintainer: [Halim Qarroum](mailto:hqm.post@gmail.com)
 
@@ -24,57 +24,45 @@ Lead Maintainer: [Halim Qarroum](mailto:hqm.post@gmail.com)
 
 ## 🔰 Description
 
-This repository features a configuration file and a Bash script I use to streamline the AWS SSM Sessions Manager developer experience. It provides an example to achieve the following :
+This repository features a simple [OpenSSH configuration file](./src/ssh_config) and a [Bash based proxy command](./src/initiate-ssm-connection.sh) used to integrate OpenSSH with [AWS SSM Sessions Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html) for a streamlined and secure experience. The aim of this project is to provide a way to achieve one or multiple of the following :
 
-- Keep EC2 instances private and secure with empty inbound security groups, and no associated SSH key-pair.
-- Run SSH through an SSM tunnel.
-- Address EC2 instances using their instance identifiers, friendly name, public DNS name or private DNS name.
+- Keep your AWS EC2 instances private and secure with empty inbound security groups, and no associated SSH key-pair.
+- Systematically run SSH through an SSM tunnel when targeting an EC2 instance.
+- Address EC2 instances using their instance identifiers, friendly names, public DNS names or private DNS names.
 - Generate just-in-time temporary SSH certificates for connecting to certificate-less instances using [EC2 Instance Connect](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Connect-using-EC2-Instance-Connect.html).
 - Integrate [sshuttle](https://github.com/sshuttle/sshuttle) with SSM to establish a lightweight and free VPN to a remote VPC.
 
 ## 🎒 Pre-Requisites
 
-Ensure you have the following tools available on your system before continuing.
+Below is a list of pre-requisites you need to have on your development machine.
 
-- The OpenSSH client tools (ssh, ssh-agent, ssh-keygen, etc.)
-- The [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
-- The [Sessions Manager Plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html) for the AWS CLI
-- [sshuttle](https://github.com/sshuttle/sshuttle)
+- OpenSSH client tools (`ssh`, `ssh-keygen`, etc.).
+- A running `ssh-agent`.
+- The [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) configured with valid AWS credentials.
+- The [Sessions Manager Plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html) must be installed.
+- [sshuttle](https://github.com/sshuttle/sshuttle).
 
 ## 🚀 Installation
 
-> This setup has been tested on Debian and MacOS.
+> The installer has been tested on Debian and MacOS.
 
-### Install Keychain
-
-[Keychain](https://www.funtoo.org/Funtoo:Keychain) is an awesome tool providing a front-end to `ssh-agent` and `ssh-add`. It allows to keep an `ssh-agent` instance per system, instead of a new instance for each terminal session.
-
-> While Keychain is not a pre-requisite in itself, but rather a good practice I do use to streamline my workflow in having a single ssh-agent up and running at all times, you must ensure you have an ssh-agent running if you choose not to use Keychain.
-
-You can install keychain via `apt` on Debian or `brew` on MacOS. Once it is installed, you can add the following line to your shell configuration (`.bashrc`, `.zshrc`, etc.) to automatically start `ssh-agent` only once per system, thus avoiding `ssh-agent` to prompt for SSH certificate passwords for each new terminal session.
+This repository provides a simple way to install and upgrade the required OpenSSH configuration on your machine using a simple installer that will perform the configuration automatically.
 
 ```bash
-eval `keychain --eval --agents ssh`
+curl -o- https://raw.githubusercontent.com/HQarroum/ssm-supercharged/master/install.sh | bash
 ```
 
-### OpenSSH Configuration
+The installer will patch your OpenSSH configuration by appending the required configuration in your `~/.ssh/config`, or create it if it does not exist. It will also copy the required OpenSSH `ProxyCommand` required to establish SSM tunnels and provision instances using EC2 Instance Connect.
 
-Next, you will need to update your `~/.ssh/config` file with the content of the [OpenSSH configuration file](./src/ssh_config) provided in this repository.
+> Note that it is recommended you read the script before installing. It does not require root priviledges and will backup your existing `~/.ssh/config` file if it already exist.
 
-In a nutshell, this configuration tells OpenSSH that for any hostname matching an EC2 instance identifier, public DNS name, private DNS name or friendly-name, it must forward its traffic through an SSM tunnel, instead of establishing a direct connection to the instance.
+### Manual Installation
 
-Here is the part you need to add to your OpenSSH configuration file.
-
-```bash
-Host i-* mi-* aws-* ec2-*.compute.amazonaws.com ip-*.compute.internal
-  ProxyCommand ~/.ssh/initiate-ssm-connection.sh %h %r %p
-```
-
-Finally, copy the [`initiate-ssm-connection.sh`](./src/initiate-ssm-connection.sh) file to your `~/.ssh/` directory. This is the proxy command that will be spawned by OpenSSH when establishing a connection to an EC2 instance.
+If you prefer to manually copy the required configuration files, or if the automated script does not work for you, please read [how to manually install the `ssm-supercharged` configuration](./docs/manual-install.md).
 
 ## 🚌 Usage
 
-> Ensure you have valid AWS credentials on your development machine before continuing. Also, I recomment you test with a small EC2 instance (e.g t2.micro) launched in a private VPC without any SSH key-pair attached for testing.
+> Ensure you have valid AWS credentials on your development machine before continuing. It is recommend you test the following with a small EC2 instance (e.g t2.micro) launched in a private VPC without any SSH key-pair attached for testing.
 
 ### OpenSSH
 
@@ -94,9 +82,11 @@ ssh user@ip-172-31-1-2.us-east-1.compute.internal
 ssh user@aws-awesome-instance
 ```
 
+> Tools running over the SSH protocol such as `scp`, `rsync`, `ansible` should work out of the box.
+
 ### sshuttle
 
-> [sshuttle](https://github.com/sshuttle/sshuttle) is a Transparent proxy server that works as a poor man's VPN. It works by establishing an SSH connection to a remote host and routes the traffic from a local machine targeting a specific IP CIDR to a remote network such as, in our case, an AWS VPC.
+> [sshuttle](https://github.com/sshuttle/sshuttle) is a Transparent proxy server that is advertised to work as a poor man's VPN. It works by establishing an SSH connection to a remote host and routes the traffic from a local machine targeting a specific IP CIDR to a remote network such as, in our case, an AWS VPC.
 
 To establish a sshuttle connection, you can simply reference your instance like in the previous example, as sshuttle is going to make use of your OpenSSH configuration automatically.
 
@@ -110,9 +100,25 @@ This will cause sshuttle to tunnel all traffic targeting `172.31.0.0/16` through
 
 <br />
 <p align="center">
-  <img width="700" src="assets/sshuttle-diagram.png">
+  <img width="650" src="assets/sshuttle-diagram.png">
 </p>
 <br />
+
+### Disabling EC2 Instance Connect
+
+By default, the proxy command script provided by `ssm-supercharged` will assume there is no SSH key-pair associated with an EC2 instance and generate a temporary RSA key-pair which will be pushed to the instance using the EC2 Instance Connect service.
+
+However, EC2 Instance Connect is as of 2023 only available to the AWS provided Ubuntu and Amazon Linux AMIs. If you are using another operating system such as RedHat, you can explicitely provide `ssh` with a private key you own.
+
+```bash
+ssh -i /path/to/key.pem user@i-example
+```
+
+If you want the `ssm-supercharged` proxy command script to stop using EC2 Instance Connect at all and rely on your provided SSH key-pairs, you can update the `~/.ssh/config` file by appending a `-e no` option to the proxy command.
+
+```ssh
+ProxyCommand ~/.ssh/initiate-ssm-connection.sh -h %h -u %r -p %p -e no
+```
 
 ## 👀 See Also
 
