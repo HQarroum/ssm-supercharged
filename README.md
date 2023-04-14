@@ -27,7 +27,7 @@ Lead Maintainer: [Halim Qarroum](mailto:hqm.post@gmail.com)
 This repository features a simple [OpenSSH configuration file](./src/ssh_config) and a [Bash based proxy command](./src/initiate-ssm-connection.sh) used to integrate OpenSSH with [AWS SSM Sessions Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html) for a streamlined and secure experience. The aim of this project is to provide a way to achieve one or multiple of the following :
 
 - Keep your EC2 instances within private subnets with no inbound security group rules.
-- Stop managing SSH key-pairs, and keep your instances keyless.
+- Stop managing SSH key-pairs, and keep your instances *keyless*.
 - Systematically tunnel SSH connections through SSM when targeting EC2 instances.
 - Address EC2 instances using their instance identifiers, friendly names, public DNS names or private DNS names.
 - Push just-in-time temporary SSH certificates when connecting to keyless instances using [EC2 Instance Connect](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Connect-using-EC2-Instance-Connect.html).
