@@ -26,15 +26,15 @@ Lead Maintainer: [Halim Qarroum](mailto:hqm.post@gmail.com)
 
 This repository features a simple [OpenSSH configuration file](./src/ssh_config) and a [Bash based proxy command](./src/initiate-ssm-connection.sh) used to integrate OpenSSH with [AWS SSM Sessions Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html) for a streamlined and secure experience. The aim of this project is to provide a way to achieve one or multiple of the following :
 
-- Keep your AWS EC2 instances private and secure with empty inbound security groups, and no associated SSH key-pair.
-- Systematically run SSH through an SSM tunnel when targeting an EC2 instance.
+- Keep your EC2 instances private and secure with empty inbound security groups, and no SSH key-pair.
+- Systematically run SSH through an SSM tunnel when targeting EC2 instances.
 - Address EC2 instances using their instance identifiers, friendly names, public DNS names or private DNS names.
 - Generate just-in-time temporary SSH certificates for connecting to certificate-less instances using [EC2 Instance Connect](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Connect-using-EC2-Instance-Connect.html).
 - Integrate [sshuttle](https://github.com/sshuttle/sshuttle) with SSM to establish a lightweight and free VPN to a remote VPC.
 
 ## 🎒 Pre-Requisites
 
-Below is a list of pre-requisites you need to have on your development machine.
+Below is a list of tools you need to have available on your development machine.
 
 - OpenSSH client tools (`ssh`, `ssh-keygen`, etc.).
 - A running `ssh-agent`.
@@ -44,17 +44,15 @@ Below is a list of pre-requisites you need to have on your development machine.
 
 ## 🚀 Installation
 
-> The installer has been tested on Debian and MacOS.
+> The installer has been tested on Debian and MacOS and does not require root priviledges.
 
-This repository provides a simple way to install and upgrade the required OpenSSH configuration on your machine using a simple installer that will perform the configuration automatically.
+This repository provides a way to install and upgrade the required OpenSSH configuration on your machine through an installer that will perform the configuration automatically.
 
 ```bash
 curl -o- https://raw.githubusercontent.com/HQarroum/ssm-supercharged/master/install.sh | bash
 ```
 
 The installer will patch your OpenSSH configuration by appending the required configuration in your `~/.ssh/config`, or create it if it does not exist. It will also copy the required OpenSSH `ProxyCommand` required to establish SSM tunnels and provision instances using EC2 Instance Connect.
-
-> Note that it is recommended you read the script before installing. It does not require root priviledges and will backup your existing `~/.ssh/config` file if it already exist.
 
 ### Manual Installation
 
@@ -66,7 +64,7 @@ If you prefer to manually copy the required configuration files, or if the autom
 
 ### OpenSSH
 
-We are first going to ensure that an SSH connection can be successfullly tunneled to your instance. To do so, simply enter the following command with the identifier of your instance.
+First ensure that an SSH connection can be successfullly tunneled to your instance. To do so, simply enter the following command with the identifier of the EC2 instance you would like to connect to.
 
 ```bash
 ssh user@i-example
@@ -106,15 +104,15 @@ This will cause sshuttle to tunnel all traffic targeting `172.31.0.0/16` through
 
 ### Disabling EC2 Instance Connect
 
-By default, the proxy command script provided by `ssm-supercharged` will assume there is no SSH key-pair associated with an EC2 instance and generate a temporary RSA key-pair which will be pushed to the instance using the EC2 Instance Connect service.
+By default, the proxy command script provided by `ssm-supercharged` assumes no SSH key-pair are associated with an instance and instead generates ephemeral RSA key-pairs for each connection which are pushed to the instance using the EC2 Instance Connect service.
 
-However, EC2 Instance Connect is as of 2023 only available to the AWS provided Ubuntu and Amazon Linux AMIs. If you are using another operating system such as RedHat, you can explicitely provide `ssh` with a private key you own.
+EC2 Instance Connect is currently only available on Ubuntu and Amazon Linux AMIs. If you are using another operating system such as RedHat, you can explicitely provide `ssh` with a private key you own when connecting to the instance.
 
 ```bash
 ssh -i /path/to/key.pem user@i-example
 ```
 
-If you want the `ssm-supercharged` proxy command script to stop using EC2 Instance Connect at all and rely on your provided SSH key-pairs, you can update the `~/.ssh/config` file by appending a `-e no` option to the proxy command.
+If you want the `ssm-supercharged` proxy command script to stop using EC2 Instance Connect for all instances and rely on your provided SSH key-pairs, you can update the `~/.ssh/config` file by appending a `-e no` option to the proxy command.
 
 ```ssh
 ProxyCommand ~/.ssh/initiate-ssm-connection.sh -h %h -u %r -p %p -e no
